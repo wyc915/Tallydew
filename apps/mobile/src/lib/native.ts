@@ -1,10 +1,13 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
 export const isNative = Capacitor.isNativePlatform();
+
+/** native helper in android/…/NavBarPlugin.java: bottom navigation bar color */
+const NavBar = registerPlugin<{ setStyle(o: { dark: boolean; color?: string }): Promise<void> }>('NavBar');
 
 /** light tap feedback (keypad, toggles) */
 export const tap = () => isNative && Haptics.impact({ style: ImpactStyle.Light }).catch(() => {});
@@ -38,5 +41,9 @@ export async function saveFile(name: string, data: Blob) {
 export async function syncStatusBar(dark: boolean) {
   if (!isNative) return;
   await StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light }).catch(() => {});
-  if (Capacitor.getPlatform() === 'android') await StatusBar.setBackgroundColor({ color: dark ? '#0b1210' : '#f4f8f6' }).catch(() => {});
+  if (Capacitor.getPlatform() === 'android') {
+    const color = dark ? '#0b1210' : '#f4f8f6';
+    await StatusBar.setBackgroundColor({ color }).catch(() => {});
+    await NavBar.setStyle({ dark, color }).catch(() => {});
+  }
 }

@@ -52,7 +52,11 @@ function AppGate() {
     if (data && !lockChecked) setLocked(!!data.pinEnabled);
   }, [data, lockChecked, setLocked]);
   useEffect(() => {
-    if (!isLoading) SplashScreen.hide().catch(() => {});
+    // closing the splash re-applies the Android theme's (system-based) bar colors, so re-sync to the in-app theme after it
+    if (!isLoading)
+      SplashScreen.hide()
+        .catch(() => {})
+        .finally(() => setTimeout(() => syncStatusBar(document.documentElement.classList.contains('dark')), 300));
   }, [isLoading]);
   useAutoLock(data ?? undefined);
 

@@ -3,7 +3,8 @@
   "appName": "點滴記帳",
   "webDir": "dist",
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "adjustMarginsForEdgeToEdge": "force"
   },
   "plugins": {
     "CapacitorSQLite": {
