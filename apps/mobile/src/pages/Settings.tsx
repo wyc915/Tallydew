@@ -81,7 +81,7 @@ export function SettingsPage() {
       </section>
 
       <p className="text-center text-xs leading-relaxed text-muted">
-        點滴記帳 v1.0 · 完全離線
+        拾分 Tallydew v1.0 · 完全離線
         <br />
         不收集任何資料，記帳內容只存在這支手機並已加密
       </p>

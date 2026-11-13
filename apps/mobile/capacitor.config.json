@@ -1,6 +1,6 @@
 {
-  "appId": "com.wyc915.diandi",
-  "appName": "點滴記帳",
+  "appId": "com.wyc915.tallydew",
+  "appName": "拾分",
   "webDir": "dist",
   "android": {
     "allowMixedContent": false,
@@ -10,7 +10,7 @@
     "CapacitorSQLite": {
       "androidIsEncryption": true,
       "iosIsEncryption": true,
-      "iosKeychainPrefix": "diandi",
+      "iosKeychainPrefix": "tallydew",
       "electronIsEncryption": false
     },
     "SplashScreen": {

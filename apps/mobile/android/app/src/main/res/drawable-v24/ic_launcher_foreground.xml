@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 點滴記帳 logo: three growing drops (from public/icon.svg, 512 → 72dp visible area) -->
+<!-- 拾分 Tallydew logo: three growing drops (from public/icon.svg, 512 → 72dp visible area) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp" android:height="108dp"
     android:viewportWidth="108" android:viewportHeight="108">

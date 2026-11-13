@@ -67,7 +67,7 @@ export function OnboardingPage() {
             animate={{ rotate: 0, scale: 1 }}
             transition={{ type: 'spring', stiffness: 260, damping: 14, delay: 0.1 }}
           />
-          <h1 className="text-2xl font-extrabold tracking-tight">歡迎使用點滴記帳</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight">歡迎使用拾分</h1>
           <p className="mt-1 text-sm text-muted">一點一滴，看見你的生活</p>
         </div>
 
@@ -97,7 +97,7 @@ export function OnboardingPage() {
         <input
           ref={fileRef}
           type="file"
-          accept=".json,.diandi,application/json,application/octet-stream"
+          accept=".json,.tallydew,.diandi,application/json,application/octet-stream"
           className="hidden"
           onChange={async (e) => {
             const f = e.target.files?.[0];

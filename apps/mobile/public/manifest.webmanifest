@@ -1,6 +1,6 @@
 {
-  "name": "點滴記帳",
-  "short_name": "點滴記帳",
+  "name": "拾分 Tallydew",
+  "short_name": "拾分",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f6faf8",

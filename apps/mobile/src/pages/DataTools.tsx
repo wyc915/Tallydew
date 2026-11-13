@@ -144,7 +144,7 @@ export function DataPage() {
           <Button variant="soft" loading={busy === 'backup'} onClick={doBackup}>
             <Download className="size-4" /> {isNative ? '匯出備份' : '下載備份'}
           </Button>
-          <input ref={restoreRef} type="file" accept=".json,.diandi,application/json,application/octet-stream" className="hidden" onChange={(e) => { setRestoreFile(e.target.files?.[0] ?? null); e.target.value = ''; }} />
+          <input ref={restoreRef} type="file" accept=".json,.tallydew,.diandi,application/json,application/octet-stream" className="hidden" onChange={(e) => { setRestoreFile(e.target.files?.[0] ?? null); e.target.value = ''; }} />
           <Button variant="outline" onClick={() => restoreRef.current?.click()}>
             <ArchiveRestore className="size-4" /> 從備份還原
           </Button>

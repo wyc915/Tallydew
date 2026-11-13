@@ -72,7 +72,7 @@ export async function clearExports(maxAgeMs = 0) {
   };
   await sweep(EXPORT_DIR, () => true);
   // files written by older builds straight into the cache root
-  await sweep('', (n) => /^diandi-.*\.(csv|xlsx|json|diandi)$/.test(n));
+  await sweep('', (n) => /^(diandi|tallydew)-.*\.(csv|xlsx|json|diandi|tallydew)$/.test(n));
 }
 
 export async function syncStatusBar(dark: boolean) {

@@ -24,13 +24,13 @@ export async function biometricInfo(): Promise<BioInfo> {
 }
 
 /** resolves true on success, false on cancel/failure */
-export async function biometricUnlock(reason = '解鎖點滴記帳'): Promise<boolean> {
+export async function biometricUnlock(reason = '解鎖拾分'): Promise<boolean> {
   try {
     await BiometricAuth.authenticate({
       reason,
       cancelTitle: '使用 PIN',
       allowDeviceCredential: false,
-      androidTitle: '點滴記帳',
+      androidTitle: '拾分',
       androidSubtitle: reason,
       androidConfirmationRequired: false,
     });

@@ -148,13 +148,13 @@ export const api = {
     if (path === '/export/transactions') {
       if (q.format === 'xlsx') {
         const bytes = await core.data.exportXlsx(q.from, q.to);
-        return saveFile(`diandi-${stampDay}.xlsx`, new Blob([bytes as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+        return saveFile(`tallydew-${stampDay}.xlsx`, new Blob([bytes as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
       }
-      return saveFile(`diandi-${stampDay}.csv`, new Blob([await core.data.exportCsv(q.from, q.to)], { type: 'text/csv' }));
+      return saveFile(`tallydew-${stampDay}.csv`, new Blob([await core.data.exportCsv(q.from, q.to)], { type: 'text/csv' }));
     }
     if (path === '/backup') {
       const text = await core.data.backup({ photos: q.photos !== '0', password: opts.password });
-      const name = `diandi-backup-${format(new Date(), 'yyyyMMdd-HHmm')}.${opts.password ? 'diandi' : 'json'}`;
+      const name = `tallydew-backup-${format(new Date(), 'yyyyMMdd-HHmm')}.${opts.password ? 'tallydew' : 'json'}`;
       return saveFile(name, new Blob([text], { type: opts.password ? 'application/octet-stream' : 'application/json' }));
     }
     throw new ApiError(404, `未知的匯出：${url}`);

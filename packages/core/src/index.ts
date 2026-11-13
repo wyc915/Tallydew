@@ -13,7 +13,7 @@ export type { Clock } from './ctx.js';
 export { CoreError } from './util.js';
 export { encryptText, decryptText, isEncrypted, MIN_BACKUP_PW } from './services/data.js';
 
-/** All business logic of 點滴記帳, running on-device against any `Db` implementation */
+/** All business logic of 拾分 (Tallydew), running on-device against any `Db` implementation */
 export function createCore(db: Db, opts: { clock?: Clock } = {}) {
   const sql = new Sql(db);
   const ctx = new Ctx(sql, opts.clock);

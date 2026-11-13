@@ -1,4 +1,4 @@
-package com.wyc915.diandi;
+package com.wyc915.tallydew;
 
 import android.graphics.Color;
 import android.view.Window;

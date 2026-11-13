@@ -3,7 +3,7 @@ import { CapacitorSQLite, SQLiteConnection, type SQLiteDBConnection } from '@cap
 import { createCore, type Core, type Db, type Param } from '@ledger/core';
 import { secureClock } from './native';
 
-const DB_NAME = 'diandi';
+const DB_NAME = 'tallydew';
 const isWeb = Capacitor.getPlatform() === 'web';
 
 /** random 32-byte passphrase, generated once and stored by the plugin in Keystore/Keychain */

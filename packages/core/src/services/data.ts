@@ -12,8 +12,9 @@ export const MIN_BACKUP_PW = 8;
 
 const TYPE_LABEL: Record<TxType, string> = { expense: '支出', income: '收入', transfer: '轉帳' };
 const HEADERS = ['日期', '類型', '金額', '幣別', '帳戶', '轉入帳戶', '轉入金額', '類別', '子類別', '備註', '標籤'];
-export const BACKUP_APP_ID = 'diandi-ledger';
-const ACCEPTED_APP_IDS = [BACKUP_APP_ID, 'mint-ledger'];
+export const BACKUP_APP_ID = 'tallydew-ledger';
+/** older names of this app (點滴記帳 app / web version) still restore */
+const ACCEPTED_APP_IDS = [BACKUP_APP_ID, 'diandi-ledger', 'mint-ledger'];
 
 /* ============================ CSV / XLSX parsing ============================ */
 export function parseCsv(text: string): string[][] {
@@ -128,7 +129,10 @@ function toRows(table: string[][]): ImportRow[] {
 }
 
 /* ============================ backup encryption ============================ */
-const ENC_PREFIX = 'DIANDI-ENC1:';
+const ENC_PREFIX = 'TALLYDEW-ENC1:';
+/** encrypted backups made before the rename */
+const LEGACY_ENC_PREFIXES = ['DIANDI-ENC1:'];
+const encPrefix = (text: string) => [ENC_PREFIX, ...LEGACY_ENC_PREFIXES].find((p) => text.startsWith(p));
 async function deriveKey(password: string, salt: Uint8Array) {
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
   return crypto.subtle.deriveKey(
@@ -150,7 +154,7 @@ export async function encryptText(text: string, password: string) {
   return ENC_PREFIX + b64(all);
 }
 export async function decryptText(payload: string, password: string) {
-  const all = unb64(payload.slice(ENC_PREFIX.length));
+  const all = unb64(payload.slice((encPrefix(payload) ?? ENC_PREFIX).length));
   try {
     const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: all.slice(16, 28) }, await deriveKey(password, all.slice(0, 16)), all.slice(28));
     return new TextDecoder().decode(pt);
@@ -158,7 +162,7 @@ export async function decryptText(payload: string, password: string) {
     throw new CoreError(400, '備份密碼不正確，或檔案已損毀');
   }
 }
-export const isEncrypted = (text: string) => text.startsWith(ENC_PREFIX);
+export const isEncrypted = (text: string) => encPrefix(text) != null;
 
 /* ============================ service ============================ */
 const TABLES = {
@@ -243,7 +247,7 @@ export function dataService(ctx: Ctx) {
     async exportXlsx(from?: string, to?: string): Promise<Uint8Array> {
       const { default: ExcelJS } = await import('exceljs');
       const wb = new ExcelJS.Workbook();
-      wb.creator = '點滴記帳';
+      wb.creator = '拾分 Tallydew';
       const ws = wb.addWorksheet('記帳明細', { views: [{ state: 'frozen', ySplit: 1 }] });
       ws.columns = HEADERS.map((h, i) => ({ header: h, width: [18, 8, 12, 7, 14, 14, 12, 12, 12, 28, 18][i] }));
       ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -361,7 +365,7 @@ export function dataService(ctx: Ctx) {
       } catch {
         throw new CoreError(400, '不是有效的備份檔');
       }
-      if (!ACCEPTED_APP_IDS.includes(p?.app ?? '') || p.version !== 1 || !p.data) throw new CoreError(400, '不是有效的點滴記帳備份檔');
+      if (!ACCEPTED_APP_IDS.includes(p?.app ?? '') || p.version !== 1 || !p.data) throw new CoreError(400, '不是有效的拾分備份檔');
       const d = p.data;
       const base = String(p.settings?.base_currency ?? 'TWD');
       if (!CURRENCY_CODES.includes(base as never)) throw new CoreError(400, '備份檔幣別無效');
