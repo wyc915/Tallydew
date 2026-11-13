@@ -1,101 +1,143 @@
-<img src="apps/web/public/icon.svg" width="72" alt="" />
+<p align="center">
+  <img src="apps/mobile/public/icon.svg" width="88" alt="拾分 Tallydew" />
+</p>
 
-# 拾分 (Tallydew)
+<h1 align="center">拾分 Tallydew · Android App</h1>
 
-現代、簡潔、動畫流暢的多人記帳 Web App。第一至第三階段皆已完成。
+<p align="center">
+  把每一分錢都拾起來 — 完全離線、資料加密、只存在你手機上的記帳 App
+</p>
+
+<p align="center">
+  <img alt="Android 8.0+" src="https://img.shields.io/badge/Android-8.0%2B-3ddc84?logo=android&logoColor=white" />
+  <img alt="Capacitor 7" src="https://img.shields.io/badge/Capacitor-7-119eff?logo=capacitor&logoColor=white" />
+  <img alt="React 19" src="https://img.shields.io/badge/React-19-149eca?logo=react&logoColor=white" />
+  <img alt="SQLCipher" src="https://img.shields.io/badge/SQLite-SQLCipher%20加密-0f80cc?logo=sqlite&logoColor=white" />
+  <img alt="Offline" src="https://img.shields.io/badge/網路權限-無-10b981" />
+</p>
+
+<table align="center">
+  <tr>
+    <td><img src="docs/screenshots/app-home.png" width="240" alt="首頁" /></td>
+    <td><img src="docs/screenshots/app-editor.png" width="240" alt="記一筆" /></td>
+    <td><img src="docs/screenshots/app-stats.png" width="240" alt="報表" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>首頁</b><br /><sub>結餘、預算、淨資產一眼看完</sub></td>
+    <td align="center"><b>記一筆</b><br /><sub>計算機鍵盤，一個畫面完成</sub></td>
+    <td align="center"><b>報表</b><br /><sub>類別占比與收支趨勢</sub></td>
+  </tr>
+</table>
+
+> 這是 `mobile` 分支的 Android App。多人使用、需架設伺服器的網頁版請見 [`main` 分支](../../tree/main)。
+
+---
+
+## 為什麼是拾分
+
+- **完全離線**：App 沒有網路權限，不需註冊帳號，不收集任何資料
+- **資料加密**：資料庫以 SQLCipher 加密，金鑰存放在 Android Keystore
+- **只在這支手機**：不會上傳雲端，也排除在系統雲端備份與裝置轉移之外；需要搬家時用加密備份檔
+- **快速**：常用模板一鍵入帳，記一筆從開啟到完成只要一個畫面
+
+## 畫面一覽
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/screenshots/app-tx.png" width="240" alt="明細" /><br /><b>明細</b><br /><sub>依日期分組、搜尋與篩選</sub></td>
+    <td align="center"><img src="docs/screenshots/app-calendar.png" width="240" alt="日曆" /><br /><b>日曆</b><br /><sub>每日支出熱度圖</sub></td>
+    <td align="center"><img src="docs/screenshots/app-budgets.png" width="240" alt="預算" /><br /><b>預算</b><br /><sub>總預算與類別預算</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/app-goals.png" width="240" alt="存錢目標" /><br /><b>存錢目標</b><br /><sub>進度與每月需存金額</sub></td>
+    <td align="center"><img src="docs/screenshots/app-dark-home.png" width="240" alt="深色模式首頁" /><br /><b>深色模式</b><br /><sub>系統列顏色跟著主題切換</sub></td>
+    <td align="center"><img src="docs/screenshots/app-dark-stats.png" width="240" alt="深色模式報表" /><br /><b>深色報表</b><br /><sub>圖表配色經色盲安全驗證</sub></td>
+  </tr>
+</table>
+
+<sub>畫面中的資料皆為示範資料。</sub>
+
+## 功能特色
+
+### ✍️ 記帳
+- 支出 / 收入 / 轉帳，類別 + 子類別、帳戶、備註、標籤
+- 計算機鍵盤（+ − × ÷）與日期時間選擇器（今天 / 昨天 / 前天快捷）
+- **常用模板**：首頁一鍵記帳，可在列表中刪除與排序
+- **收據照片**：拍照或選圖，自動壓縮後存入加密資料庫
+- **分期付款**：記一筆時直接設定期數，自動產生每月一期
+
+### 📋 明細、報表與日曆
+- 日 / 週 / 月 / 年 / 全部切換，依日期分組並顯示每日小計
+- 關鍵字搜尋與多條件篩選，左滑編輯 / 刪除並可復原
+- 類別甜甜圈圖、類別排行、收支趨勢；日曆呈現每日支出熱度
+
+### 🎯 預算、目標與自動化
+- 每月總預算與類別預算，超支即時提醒，顯示每日可用金額
+- 存錢目標：存入 / 提領紀錄、每月需存金額試算
+- 定期交易：開啟 App 或回到前景時自動入帳，過去的開始日期自動補記
+
+### 💳 帳戶與多幣別
+- 現金 / 銀行 / 信用卡 / 電子支付等帳戶，即時餘額與淨資產
+- 信用卡結帳日、繳款截止日與本期應繳
+- 17 種常用幣別，外幣以記帳當下匯率換算
+
+### 📦 資料匯入與備份
+- 匯出 CSV / Excel，透過系統分享選單存到檔案、雲端硬碟或傳給他人
+- 匯入 CSV / Excel 先預覽再寫入，可略過重複
+- 完整備份可設定密碼（AES-GCM 加密），也能還原網頁版的備份檔
+
+## 安全與隱私
+
+| 項目 | 做法 |
+|---|---|
+| 資料庫 | SQLCipher 全庫加密，32 位元組隨機金鑰存於 Android Keystore；加密不可用時拒絕開啟 |
+| App 鎖 | 4–6 位數 PIN（PBKDF2 雜湊），可搭配指紋 / 臉部辨識快速解鎖；閒置自動上鎖 |
+| 防暴力破解 | PIN 每錯 5 次鎖定，時間逐次拉長（1 分 → 5 分 → 15 分 → 1 小時 → 4 小時）；以開機後單調時鐘計時，調整系統時間無法略過 |
+| 畫面隱私 | 切到背景時遮住餘額；Android 13 以上最近使用畫面的縮圖為空白 |
+| 網路與備份 | 沒有網路權限；關閉系統備份與裝置轉移；匯出檔只暫存在 App 私有資料夾並自動清除 |
+| 網頁層 | 正式版套用嚴格的 Content-Security-Policy，只允許 App 本身的資源 |
 
 ## 技術架構
 
 | 層級 | 技術 |
 |---|---|
-| 前端 | React 19 · TypeScript · Vite · Tailwind CSS v4 · Framer Motion · Recharts · TanStack Query · Zustand |
-| 後端 | Node.js · Fastify 5 · TypeScript (tsx) |
-| 資料庫 | SQLite (better-sqlite3) · Drizzle ORM |
-| 共用 | `packages/shared`：Zod 驗證 schema 與型別，前後端共用 |
-| 驗證 | Email + 密碼（bcrypt），JWT 存於 httpOnly Cookie |
+| 介面 | React 19 · TypeScript · Vite · Tailwind CSS v4 · Framer Motion · Recharts · TanStack Query · Zustand |
+| 原生容器 | Capacitor 7（Android），自製 `NavBar`、`Secure` 原生外掛 |
+| 資料 | `@capacitor-community/sqlite` + SQLCipher；瀏覽器開發模式改用 sql.js（WASM） |
+| 商業邏輯 | `packages/core`：帳務、統計、分期、匯入匯出，可在 Node 以 better-sqlite3 測試 |
+| 共用 | `packages/shared`：Zod 驗證 schema 與型別 |
 
 ```
 ledger-app/
-├─ apps/server     Fastify API + SQLite（資料存在 apps/server/data/ledger.db）
-├─ apps/web        React 前端（PWA）
-└─ packages/shared Zod schema / 型別
+├─ apps/mobile        React 介面 + Capacitor Android 專案（apps/mobile/android）
+├─ packages/core      裝置上執行的商業邏輯與 SQLite schema
+├─ packages/shared    Zod schema / 型別
+└─ docs/              規劃文件與截圖
 ```
 
-## 開始使用
+## 開發與建置
 
-需求：Node.js 20.19+（已在 Node 20.19.4 測試）
+需求：Node.js 20.19 以上、Android Studio（使用其內附 JDK）
 
 ```bash
 npm install
-npm run dev          # 同時啟動 API (http://127.0.0.1:3001) 與前端 (http://localhost:5173)
+npm run dev            # 在瀏覽器開發（http://localhost:5173，sql.js 模擬資料庫、未加密）
+npm test               # 執行 packages/core 測試
+npm run android:sync   # 建置網頁並同步到 Android 專案
+npm run android:open   # 以 Android Studio 開啟，選擇模擬器或實機執行
 ```
 
-開啟 http://localhost:5173 ，註冊帳號即可使用（註冊時會自動建立預設類別與帳戶）。
-
-開發用測試帳號（僅存在本機開發資料庫，含示範資料）：`demo@ledger.test` / `demo12345`
-
-> 新增套件請在專案根目錄執行 `npm install <pkg> -w apps/web`。根目錄 `package.json` 以 `optionalDependencies` 固定了 Windows 版 esbuild / rolldown 原生套件，避免 npm 在 workspace 安裝時誤刪（其他平台會自動略過）。升級 vite / tsx 時請一併更新這兩個版本號。
->
-> `npm audit` 會回報 exceljs 依賴的 `uuid` 有 moderate 警告；該弱點只影響 uuid v3/v5/v6 搭配 buffer 參數，exceljs 僅使用 `v4()`，不受影響。
-
-### 正式部署（單一服務）
+命令列建置 APK（Windows，於 `apps/mobile/android`）：
 
 ```bash
-npm run build        # 建置前端到 apps/web/dist
-npm start            # API 同時提供前端靜態檔，預設 http://127.0.0.1:3001
+JAVA_HOME="/c/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
 ```
 
-環境變數：
+<details>
+<summary><b>開發備註</b></summary>
 
-| 變數 | 說明 | 預設 |
-|---|---|---|
-| `API_PORT` | API 監聽埠 | `3001` |
-| `HOST` | 監聽位址（對外開放設 `0.0.0.0`） | `127.0.0.1` |
-| `DATA_DIR` | SQLite 與金鑰存放目錄 | `apps/server/data` |
-| `JWT_SECRET` | JWT 簽章金鑰（未設定會自動產生並存於 DATA_DIR） | 自動 |
-| `COOKIE_SECURE` | 透過 HTTPS 提供服務時設為 `1` | 關閉 |
+- `apps/mobile/android/local.properties` 需指向 Android SDK（使用正斜線），此檔不納入版本控制。
+- App 識別碼為 `com.wyc915.tallydew`；變更識別碼會被系統視為另一個 App，原有資料無法讀取。
+- 舊名稱時期的備份（`diandi-ledger`、`DIANDI-ENC1`）與網頁版備份（`mint-ledger`）仍可還原。
 
-備份：直接複製 `DATA_DIR/ledger.db` 即可。
-
-## 第一階段功能
-
-- 多人帳號：註冊、登入、登出、修改名稱、變更密碼；各使用者資料完全隔離；登入失敗 5 次鎖定 5 分鐘
-- 記帳：支出 / 收入 / 轉帳；計算機鍵盤（+ − × ÷，支援實體鍵盤）；日期時間選擇器（今天 / 昨天 / 前天快捷、月曆滑動切換）；類別 + 子類別；帳戶；備註；標籤
-- 明細：日 / 週 / 月 / 年 / 全部切換，前後期滑動；關鍵字搜尋（備註、類別、標籤）；篩選（類型、類別、帳戶、標籤、金額區間）；依日期分組含每日小計
-- 列表左滑編輯 / 刪除，刪除後可「復原」
-- 類別管理：新增 / 編輯 / 刪除、子類別、自訂圖示與顏色、拖曳排序
-- 帳戶管理：現金 / 銀行 / 信用卡 / 電子支付 / 其他；初始餘額、即時餘額、資產 / 負債 / 淨資產；拖曳排序
-- 首頁總覽：本月結餘 / 收支（數字滾動動畫）、淨資產、本月支出排行、最近紀錄
-- 淺色 / 深色 / 跟隨系統；手機優先的響應式介面（桌機側邊欄）；PWA 可加入主畫面
-- 快捷鍵：`N` 新增一筆
-
-## 第二階段功能
-
-- **報表**：週 / 月 / 年；支出或收入的類別甜甜圈圖（點擊可展開子類別）、類別排行、收支趨勢面積圖、近 6 個月收支對比長條圖；圖表配色經色盲安全驗證
-- **日曆**：每日支出熱度圖（4 階單色）、收入標記、點選日期查看當日明細並可直接記一筆
-- **預算**：每月總預算 + 類別預算（含子類別）；進度環 / 進度條、接近上限（80%）與超支狀態、每日可用金額；記帳後若超支即時跳出提醒
-- **定期交易**：每 N 天 / 週 / 月 / 年；開始 / 結束日期、入帳時間、暫停；伺服器啟動時、每 15 分鐘與登入時自動入帳；開始日期在過去會自動補記；月底日期正確處理（如 31 日 → 2 月 28 日）
-- **常用模板**：首頁一鍵記帳（金額完整時直接入帳並可復原，否則開啟預填的記帳畫面）；記帳畫面可「存為模板」；拖曳排序
-- **存錢目標**：目標金額、期限、圖示顏色；存入 / 提領紀錄；進度環動畫、每月需存金額試算、達成慶祝動畫
-- 手機底部導覽改為「首頁 / 明細 / ＋ / 報表 / 更多」，「更多」集中所有功能入口；報表頁程式碼分割按需載入
-
-## 第三階段功能
-
-- **多幣別**：17 種常用幣別；主要幣別可設定（尚無外幣帳戶時）；外幣匯率手動設定（支援反向輸入）。每筆外幣紀錄以記帳當下匯率換算存檔，報表、預算、淨資產一律以主要幣別計算；跨幣別轉帳可填寫實際轉入金額
-- **匯入 / 匯出 / 備份**：匯出 CSV（含 BOM，Excel 直接開啟中文不亂碼、防公式注入）或 Excel（.xlsx，含標題樣式與篩選）；匯入 CSV / Excel 先預覽（錯誤列標示、將自動建立的帳戶 / 類別 / 標籤）、可略過重複；完整 JSON 備份（可含收據照片）與還原
-- **收據照片**：每筆最多 10 張；上傳前於瀏覽器壓縮（最長邊 1600px JPEG）；伺服器以檔頭驗證圖片格式、僅本人可存取；明細列顯示迴紋針、點縮圖放大
-- **信用卡**：結帳日 / 繳款截止日；本期應繳、已繳（轉入信用卡視為繳款）、到期倒數 / 逾期提示、未出帳、未到期分期
-- **分期付款**：記一筆時開啟「分期付款」選 3–36 期，自動產生每月一期（零頭放第一期、依幣別最小單位切分）；未到期的期數不計入目前餘額；可提前結清（取消剩餘期數）或整筆刪除
-- **PIN 碼鎖**：4–6 位數 PIN（需登入密碼設定 / 關閉）；閒置 1 / 5 / 15 / 30 / 60 分鐘自動鎖定、可立即鎖定；**由伺服器強制執行**（鎖定時 API 回傳 423）；錯 5 次鎖 5 分鐘；忘記 PIN 可改用密碼登入
-
-> 注意：帳戶餘額只計算「到現在為止」的紀錄，未來日期的紀錄（例如後續分期）會在到期時才計入。
-
-## API 一覽
-
-`/api/auth/{register,login,logout,me,password}` · `/api/accounts` · `/api/categories` · `/api/tags` ·
-`/api/transactions`（GET 支援 `from,to,q,type,categoryIds,accountIds,tagIds,min,max,limit`）·
-`/api/transactions/summary` · `/api/transactions/:id/restore` ·
-`/api/stats/{trend,categories}` · `/api/budgets` · `/api/recurring` · `/api/templates` · `/api/goals` · `/api/goals/:id/entries` ·
-`/api/rates` · `/api/settings/base-currency` · `/api/installments` · `/api/accounts/:id/cycle` ·
-`/api/transactions/:id/attachments` · `/api/attachments/:id` · `/api/export/transactions?format=csv|xlsx` ·
-`/api/import/{preview,commit}` · `/api/backup` · `/api/backup/restore` · `/api/auth/{pin,pin/verify,lock,ping,lock-settings}`
+</details>
