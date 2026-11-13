@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <title>點滴記帳</title>
+  <title>拾分 Tallydew</title>
   <rect width="512" height="512" rx="114" fill="#ecfdf5"/>
   <rect x="2" y="2" width="508" height="508" rx="112" fill="none" stroke="#bbf7d0" stroke-width="4"/>
   <!-- three drops growing left → right: 一點一滴 -->

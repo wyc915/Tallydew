@@ -94,7 +94,7 @@ export function SettingsPage() {
       <Button variant="danger" className="w-full" onClick={logout}>
         <LogOut className="size-4" /> 登出
       </Button>
-      <p className="text-center text-xs text-muted">點滴記帳 v0.3</p>
+      <p className="text-center text-xs text-muted">拾分 Tallydew v0.3</p>
 
       <ProfileSheet open={profile} onClose={() => setProfile(false)} me={me} />
       <PasswordSheet open={pwd} onClose={() => setPwd(false)} />

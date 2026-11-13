@@ -301,14 +301,14 @@ function backup(uid: number, withPhotos: boolean) {
   return { app: BACKUP_APP_ID, version: 1, exportedAt: new Date().toISOString(), settings: u, data };
 }
 
-/** current backup id; 'mint-ledger' = backups made before the rename to 點滴記帳 */
-const BACKUP_APP_ID = 'diandi-ledger';
-const ACCEPTED_APP_IDS = [BACKUP_APP_ID, 'mint-ledger'];
+/** current backup id; 'diandi-ledger' / 'mint-ledger' = backups made under the app's earlier names (still restore) */
+const BACKUP_APP_ID = 'tallydew-ledger';
+const ACCEPTED_APP_IDS = [BACKUP_APP_ID, 'diandi-ledger', 'mint-ledger'];
 
 type Rec = Record<string, unknown>;
 function restore(uid: number, payload: unknown) {
   const p = payload as { app?: string; version?: number; settings?: Rec; data?: Record<string, Rec[]> };
-  if (!ACCEPTED_APP_IDS.includes(p?.app ?? '') || p.version !== 1 || !p.data) throw new HttpError(400, '不是有效的點滴記帳備份檔');
+  if (!ACCEPTED_APP_IDS.includes(p?.app ?? '') || p.version !== 1 || !p.data) throw new HttpError(400, '不是有效的拾分備份檔');
   const d = p.data;
   const base = String(p.settings?.base_currency ?? 'TWD');
   if (!CURRENCY_CODES.includes(base as never)) throw new HttpError(400, '備份檔幣別無效');
@@ -426,7 +426,7 @@ export async function dataRoutes(app: FastifyInstance) {
     const stamp = format(new Date(), 'yyyyMMdd');
     if (q.format === 'xlsx') {
       const wb = new ExcelJS.Workbook();
-      wb.creator = '點滴記帳';
+      wb.creator = '拾分 Tallydew';
       const ws = wb.addWorksheet('記帳明細', { views: [{ state: 'frozen', ySplit: 1 }] });
       ws.columns = HEADERS.map((h, i) => ({ header: h, width: [18, 8, 12, 7, 14, 14, 12, 12, 12, 28, 18][i] }));
       ws.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -438,13 +438,13 @@ export async function dataRoutes(app: FastifyInstance) {
       const buf = await wb.xlsx.writeBuffer();
       return reply
         .header('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        .header('content-disposition', `attachment; filename="diandi-${stamp}.xlsx"`)
+        .header('content-disposition', `attachment; filename="tallydew-${stamp}.xlsx"`)
         .send(Buffer.from(buf as ArrayBuffer));
     }
     const csv = '﻿' + [HEADERS, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n');
     return reply
       .header('content-type', 'text/csv; charset=utf-8')
-      .header('content-disposition', `attachment; filename="diandi-${stamp}.csv"`)
+      .header('content-disposition', `attachment; filename="tallydew-${stamp}.csv"`)
       .send(csv);
   });
 
@@ -481,7 +481,7 @@ export async function dataRoutes(app: FastifyInstance) {
     const json = JSON.stringify(backup(req.user.uid, withPhotos));
     return reply
       .header('content-type', 'application/json; charset=utf-8')
-      .header('content-disposition', `attachment; filename="diandi-backup-${format(new Date(), 'yyyyMMdd-HHmm')}.json"`)
+      .header('content-disposition', `attachment; filename="tallydew-backup-${format(new Date(), 'yyyyMMdd-HHmm')}.json"`)
       .send(json);
   });
 
