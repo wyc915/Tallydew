@@ -13,7 +13,7 @@ export const MIN_BACKUP_PW = 8;
 const TYPE_LABEL: Record<TxType, string> = { expense: '支出', income: '收入', transfer: '轉帳' };
 const HEADERS = ['日期', '類型', '金額', '幣別', '帳戶', '轉入帳戶', '轉入金額', '類別', '子類別', '備註', '標籤'];
 export const BACKUP_APP_ID = 'tallydew-ledger';
-/** older names of this app (點滴記帳 app / web version) still restore */
+/** backups made under the app's earlier names (diandi-ledger / mint-ledger, incl. the web version) still restore */
 const ACCEPTED_APP_IDS = [BACKUP_APP_ID, 'diandi-ledger', 'mint-ledger'];
 
 /* ============================ CSV / XLSX parsing ============================ */

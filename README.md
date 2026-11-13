@@ -1,6 +1,6 @@
 <img src="apps/web/public/icon.svg" width="72" alt="" />
 
-# 點滴記帳 (DianDi)
+# 拾分 (Tallydew)
 
 現代、簡潔、動畫流暢的多人記帳 Web App。第一至第三階段皆已完成。
 

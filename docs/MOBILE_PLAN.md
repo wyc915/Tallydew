@@ -1,6 +1,6 @@
-# 點滴記帳 App 版：純本地架構規劃
+# 拾分 (Tallydew) App 版：純本地架構規劃
 
-> 分支：`mobile`（從 `main` 18e5a7f 分出，不合併回網頁版）
+> 分支：`mobile`（從 `main` 5feabf1 分出，不合併回網頁版）
 > 目標：iOS（App Store）與 Android（Google Play）上架、完全離線、資料只存在使用者手機上。
 
 ---
@@ -195,7 +195,7 @@ export interface Db {                       // 兩種實作，同一套業務邏
 
 1. **iOS 建置環境**：雲端建置服務（Codemagic 有免費額度）或實體 Mac
 2. **開發者帳號**：Apple US$99／年、Google Play US$25
-3. **Bundle ID／套件名稱**：例如 `com.wyc915.diandi`（上架後不可更改）
+3. **Bundle ID／套件名稱**：例如 `com.wyc915.tallydew`（上架後不可更改）
 4. **隱私權政策頁面**：兩個商店都要求網址（純本地 App 內容很簡短，可用 GitHub Pages）
 5. **Android 封閉測試的 12 位測試者**
 6. **網頁版資料是否要搬到 App**：可以用網頁版的「完整備份」匯出，App 提供匯入舊格式備份的功能
