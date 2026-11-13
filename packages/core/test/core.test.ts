@@ -135,17 +135,45 @@ ok((await core.data.importCommit({ rows: pv.rows })).created === 1, 'import comm
 ok((await core.data.importCommit({ rows: pv.rows })).skipped === 1, 're-import skips duplicates');
 
 // backup round-trip (encrypted) into a fresh device
-const enc = await core.data.backup({ password: 'pw-123' });
+await throws(() => core.data.backup({ password: 'short' }), /至少 8 碼/, 'weak backup password rejected');
+const enc = await core.data.backup({ password: 'pw-12345' });
 ok(isEncrypted(enc), 'backup encrypted');
 const other = createCore(nodeDb());
 await other.init();
 await throws(() => other.data.restore(enc), /加密/, 'restore needs password');
 await throws(() => other.data.restore(enc, 'wrong'), /密碼不正確/, 'wrong backup password');
-const counts = await other.data.restore(enc, 'pw-123');
+const counts = await other.data.restore(enc, 'pw-12345');
 const a1 = (await core.accounts.list()).map((a) => `${a.name}:${a.balance}`).sort().join('|');
 const a2 = (await other.accounts.list()).map((a) => `${a.name}:${a.balance}`).sort().join('|');
 ok(a1 === a2, `restored balances match (${counts.transactions} tx, ${counts.attachments} photos)`);
 ok((await other.app.me()).onboarded, 'restored device is onboarded');
+
+// crafted backup cannot stretch auto-lock
+const crafted = JSON.parse(await core.data.backup());
+crafted.settings.lock_minutes = 999999;
+await other.data.restore(JSON.stringify(crafted));
+ok((await other.app.me()).lockMinutes === 1, 'restored lock_minutes clamped');
+
+// CSV formula injection: "-1+..." payload is neutralised
+await core.transactions.create({ type: 'expense', amount: 1, accountId: cash, categoryId: lunch, occurredAt: now, note: "-1+cmd|' /C calc'!A0" });
+const csv2 = await core.data.exportCsv();
+ok(csv2.includes("'-1+cmd") && !/,"?-1\+cmd/.test(csv2), 'CSV "-1+…" formula neutralised');
+
+// PIN brute force: escalating lockout on a monotonic clock; reboot re-arms instead of clearing
+let t = { boot: 'b1', ms: 1_000_000 };
+const pc = createCore(nodeDb(), { clock: async () => t });
+await pc.init();
+await pc.app.setPin({ pin: '2468' });
+for (let i = 0; i < 4; i++) await pc.app.verifyPin({ pin: '0000' }).catch(() => {});
+await throws(() => pc.app.verifyPin({ pin: '0000' }), /鎖定 1 分鐘/, '5th wrong PIN locks 1 min');
+await throws(() => pc.app.verifyPin({ pin: '2468' }), /後再試/, 'correct PIN refused during lockout');
+t = { boot: 'b2', ms: 5 };
+await throws(() => pc.app.verifyPin({ pin: '2468' }), /後再試/, 'reboot re-arms lockout');
+t = { boot: 'b2', ms: 5 + 61_000 };
+for (let i = 0; i < 4; i++) await pc.app.verifyPin({ pin: '0000' }).catch(() => {});
+await throws(() => pc.app.verifyPin({ pin: '0000' }), /鎖定 5 分鐘/, '10th wrong PIN escalates to 5 min');
+t = { boot: 'b2', ms: t.ms + 301_000 };
+ok((await pc.app.verifyPin({ pin: '2468' })).ok, 'correct PIN accepted after lockout');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

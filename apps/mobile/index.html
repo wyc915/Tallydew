@@ -8,13 +8,8 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icon.svg" />
     <title>點滴記帳</title>
-    <script>
-      try {
-        var t = localStorage.getItem('theme') || 'system';
-        var d = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
-        if (d) document.documentElement.classList.add('dark');
-      } catch (e) {}
-    </script>
+    <!-- set the dark class before first paint (external file so the CSP needs no inline script) -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

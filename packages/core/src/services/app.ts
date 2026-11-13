@@ -29,6 +29,9 @@ export const onboardInput = z.object({
   name: z.string().trim().min(1, '請輸入暱稱').max(40),
   baseCurrency: z.enum(CURRENCY_CODES as [Currency, ...Currency[]]),
 });
+/** lockout length after the 5th, 10th, 15th… wrong PIN */
+const LOCK_STEPS = [60_000, 5 * 60_000, 15 * 60_000, 60 * 60_000, 4 * 60 * 60_000];
+
 export const pinInput = z.object({ pin: z.string().regex(/^\d{4,6}$/, 'PIN 需為 4–6 位數字') });
 export const pinChangeInput = z.object({ current: z.string().optional(), pin: z.string().regex(/^\d{4,6}$/, 'PIN 需為 4–6 位數字') });
 
@@ -97,6 +100,7 @@ export function appService(ctx: Ctx) {
       if (cur && !(b.current && (await verifyPin(b.current, cur)))) throw new CoreError(400, '目前的 PIN 不正確');
       await ctx.setSetting('pin_hash', await hashPin(b.pin));
       await ctx.setSetting('pin_fail', 0);
+      await ctx.setSetting('pin_lock', null);
       return me();
     },
     async disablePin(body: unknown) {
@@ -107,13 +111,32 @@ export function appService(ctx: Ctx) {
       await ctx.setSetting('biometric', null);
       return me();
     },
-    /** throttled: every 5 wrong attempts locks for 5 minutes (persisted across restarts) */
+    /**
+     * Brute-force throttle: every 5th wrong PIN starts a lockout that grows each time
+     * (1 min → 5 min → 15 min → 1 h → 4 h…). Timed on the tamper-resistant clock;
+     * a reboot re-arms the full lockout instead of clearing it.
+     */
     async verifyPin(body: unknown) {
       const { pin } = parse(pinInput, body);
-      const until = Number(await ctx.getSetting('pin_until')) || 0;
-      if (until > Date.now()) {
-        const s = Math.ceil((until - Date.now()) / 1000);
-        throw new CoreError(429, `嘗試次數過多，請 ${s} 秒後再試`);
+      const now = await ctx.clock();
+      const raw = await ctx.getSetting('pin_lock');
+      if (raw) {
+        let lock: { boot: string; until: number; ms: number };
+        try {
+          lock = JSON.parse(raw);
+        } catch {
+          lock = { boot: '', until: 0, ms: LOCK_STEPS[0] };
+        }
+        if (lock.boot !== now.boot) {
+          // rebooted (or unreadable record): the old timestamps are meaningless, so start the lockout over
+          lock = { boot: now.boot, until: now.ms + lock.ms, ms: lock.ms };
+          await ctx.setSetting('pin_lock', JSON.stringify(lock));
+        }
+        if (lock.until > now.ms) {
+          const s = Math.ceil((lock.until - now.ms) / 1000);
+          throw new CoreError(429, `嘗試次數過多，請 ${s >= 120 ? `${Math.ceil(s / 60)} 分鐘` : `${s} 秒`}後再試`);
+        }
+        await ctx.setSetting('pin_lock', null); // served; the failure count keeps growing the next one
       }
       const cur = await ctx.getSetting('pin_hash');
       if (!cur) return { ok: true };
@@ -121,13 +144,15 @@ export function appService(ctx: Ctx) {
         const n = (Number(await ctx.getSetting('pin_fail')) || 0) + 1;
         await ctx.setSetting('pin_fail', n);
         if (n % 5 === 0) {
-          await ctx.setSetting('pin_until', Date.now() + 5 * 60_000);
-          throw new CoreError(400, 'PIN 錯誤次數過多，已鎖定 5 分鐘');
+          const ms = LOCK_STEPS[Math.min(n / 5 - 1, LOCK_STEPS.length - 1)];
+          await ctx.setSetting('pin_lock', JSON.stringify({ boot: now.boot, until: now.ms + ms, ms }));
+          throw new CoreError(429, `PIN 錯誤次數過多，已鎖定 ${ms >= 3_600_000 ? `${ms / 3_600_000} 小時` : `${ms / 60_000} 分鐘`}`);
         }
         throw new CoreError(400, `PIN 錯誤（剩 ${5 - (n % 5)} 次）`);
       }
       await ctx.setSetting('pin_fail', 0);
-      await ctx.setSetting('pin_until', null);
+      await ctx.setSetting('pin_lock', null);
+      await ctx.setSetting('pin_until', null); // legacy key
       return { ok: true };
     },
     async setLock(body: unknown) {

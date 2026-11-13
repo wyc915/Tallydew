@@ -1,4 +1,4 @@
-import { Ctx } from './ctx.js';
+import { Ctx, type Clock } from './ctx.js';
 import { Sql, type Db } from './db.js';
 import { migrate } from './schema.js';
 import { accountsService, categoriesService } from './services/accounts.js';
@@ -9,13 +9,14 @@ import { recurringService, statsService } from './services/planning.js';
 import { transactionsService } from './services/transactions.js';
 
 export type { Db, Param } from './db.js';
+export type { Clock } from './ctx.js';
 export { CoreError } from './util.js';
-export { encryptText, decryptText, isEncrypted } from './services/data.js';
+export { encryptText, decryptText, isEncrypted, MIN_BACKUP_PW } from './services/data.js';
 
 /** All business logic of 點滴記帳, running on-device against any `Db` implementation */
-export function createCore(db: Db) {
+export function createCore(db: Db, opts: { clock?: Clock } = {}) {
   const sql = new Sql(db);
-  const ctx = new Ctx(sql);
+  const ctx = new Ctx(sql, opts.clock);
   const core = {
     ctx,
     app: appService(ctx),

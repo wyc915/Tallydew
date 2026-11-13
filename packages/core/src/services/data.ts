@@ -6,6 +6,10 @@ import { placeholders, type Param } from '../db.js';
 import { CoreError, fromCents, stamp, toCents } from '../util.js';
 import { sniffBase64 } from './transactions.js';
 
+/** auto-lock choices (mirrors lockSettingsInput) and minimum backup password length */
+const LOCK_CHOICES = [1, 5, 15, 30, 60];
+export const MIN_BACKUP_PW = 8;
+
 const TYPE_LABEL: Record<TxType, string> = { expense: '支出', income: '收入', transfer: '轉帳' };
 const HEADERS = ['日期', '類型', '金額', '幣別', '帳戶', '轉入帳戶', '轉入金額', '類別', '子類別', '備註', '標籤'];
 export const BACKUP_APP_ID = 'diandi-ledger';
@@ -205,7 +209,8 @@ export function dataService(ctx: Ctx) {
   }
   const csvCell = (v: unknown) => {
     let s = String(v ?? '');
-    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s)) s = `'${s}`; // formula-injection guard
+    // formula-injection guard: only a plain number may start with "-" ("-1+cmd|…" is a formula)
+    if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
     return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
 
@@ -340,6 +345,7 @@ export function dataService(ctx: Ctx) {
         name: await ctx.getSetting('name'),
       };
       const json = JSON.stringify({ app: BACKUP_APP_ID, version: 1, exportedAt: new Date().toISOString(), settings, data });
+      if (opts.password != null && opts.password.length < MIN_BACKUP_PW) throw new CoreError(400, `備份密碼至少 ${MIN_BACKUP_PW} 碼`);
       return opts.password ? encryptText(json, opts.password) : json;
     },
 
@@ -369,7 +375,9 @@ export function dataService(ctx: Ctx) {
         await sql.run('DELETE FROM categories');
         await sql.run('DELETE FROM accounts');
         await ctx.setSetting('base_currency', base);
-        await ctx.setSetting('lock_minutes', Number(p.settings?.lock_minutes) || 1);
+        // a crafted backup must not be able to stretch the auto-lock beyond the allowed choices
+        const lockMin = Number(p.settings?.lock_minutes);
+        await ctx.setSetting('lock_minutes', LOCK_CHOICES.includes(lockMin) ? lockMin : 1);
         if (p.settings?.name) await ctx.setSetting('name', String(p.settings.name).slice(0, 40));
         await ctx.setSetting('onboarded', '1');
 

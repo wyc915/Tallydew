@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection, type SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { createCore, type Core, type Db, type Param } from '@ledger/core';
+import { secureClock } from './native';
 
 const DB_NAME = 'diandi';
 const isWeb = Capacitor.getPlatform() === 'web';
@@ -24,13 +25,13 @@ async function openConnection(): Promise<{ conn: SQLiteDBConnection; sqlite: SQL
   let encrypted = false;
   let mode = 'no-encryption';
   if (!isWeb) {
+    // fail closed: on a phone the ledger is never opened without SQLCipher
     const { result: supported } = await sqlite.isInConfigEncryption();
-    if (supported) {
-      const { result: stored } = await sqlite.isSecretStored();
-      if (!stored) await sqlite.setEncryptionSecret(randomSecret());
-      encrypted = true;
-      mode = 'secret';
-    }
+    if (!supported) throw new Error('資料庫加密未啟用，為保護資料已停止開啟');
+    const { result: stored } = await sqlite.isSecretStored();
+    if (!stored) await sqlite.setEncryptionSecret(randomSecret());
+    encrypted = true;
+    mode = 'secret';
   }
   const exists = (await sqlite.checkConnectionsConsistency()).result && (await sqlite.isConnection(DB_NAME, false)).result;
   const conn = exists
@@ -85,7 +86,7 @@ let corePromise: Promise<Core> | null = null;
 export function getCore(): Promise<Core> {
   corePromise ??= (async () => {
     const { conn, sqlite } = await openConnection();
-    const core = createCore(adapter(conn, sqlite));
+    const core = createCore(adapter(conn, sqlite), { clock: secureClock });
     await core.init();
     return core;
   })();

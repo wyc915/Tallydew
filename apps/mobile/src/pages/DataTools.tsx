@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { addYears, startOfMonth, startOfYear, addMonths } from 'date-fns';
 import { AlertTriangle, ArchiveRestore, DatabaseBackup, Download, FileSpreadsheet, FileText, Upload } from 'lucide-react';
 import type { ImportPreview } from '@ledger/shared';
-import { isEncrypted } from '@ledger/core';
+import { MIN_BACKUP_PW, isEncrypted } from '@ledger/core';
 import { api, qs } from '@/lib/api';
 import { cn, money, ymd } from '@/lib/format';
 import { isNative, saveFile } from '@/lib/native';
@@ -77,7 +77,7 @@ export function DataPage() {
 
   const doBackup = () =>
     run('backup', async () => {
-      if (backupPw && backupPw.length < 6) throw new Error('備份密碼至少 6 碼');
+      if (backupPw && backupPw.length < MIN_BACKUP_PW) throw new Error(`備份密碼至少 ${MIN_BACKUP_PW} 碼`);
       await api.download(`/backup${photos ? '' : '?photos=0'}`, 'backup', { password: backupPw || undefined });
     });
 
@@ -137,7 +137,7 @@ export function DataPage() {
           <span className="text-sm">備份包含收據照片</span>
           <Toggle on={photos} onChange={setPhotos} />
         </label>
-        <Field label="備份密碼（建議設定，至少 6 碼；留空則為未加密檔）">
+        <Field label="備份密碼（建議設定，至少 8 碼；留空則為未加密檔，任何人拿到檔案都能讀取）">
           <Input type="password" value={backupPw} onChange={(e) => setBackupPw(e.target.value)} autoComplete="new-password" placeholder="設定後還原時需要輸入" />
         </Field>
         <div className="mt-3 grid grid-cols-2 gap-3">

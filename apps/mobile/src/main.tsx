@@ -15,7 +15,7 @@ import type { User } from '@ledger/shared';
 import { useMe } from '@/lib/queries';
 import { api } from '@/lib/api';
 import { setBaseCurrency } from '@/lib/format';
-import { isNative, syncStatusBar } from '@/lib/native';
+import { clearExports, isNative, secureClock, syncStatusBar } from '@/lib/native';
 import { LockScreen } from '@/components/LockScreen';
 import { PrivacyCover } from '@/components/PrivacyCover';
 import { CurrencyPage } from '@/pages/Currency';
@@ -89,17 +89,25 @@ function useAutoLock(me?: User) {
   useEffect(() => {
     if (!me?.onboarded) return;
     let lastActive = Date.now();
-    let hiddenAt = 0;
+    // background time is measured on the monotonic clock, so moving the phone's date/time can't skip the lock
+    let hidden: Promise<{ boot: string; ms: number }> | null = null;
     const limit = () => (me.lockMinutes || 1) * 60_000;
     const lock = () => me.pinEnabled && useUI.getState().setLocked(true);
     const onHide = () => {
-      hiddenAt = Date.now();
+      hidden = secureClock();
       useUI.getState().setCovered(true);
     };
     const onShow = async () => {
+      const since = hidden;
+      hidden = null;
+      if (since) {
+        const [a, b] = await Promise.all([since, secureClock()]);
+        const away = b.ms - a.ms;
+        // different boot or a clock that went backwards (wall-clock fallback) also counts as "long enough"
+        if (a.boot !== b.boot || away < 0 || away >= limit()) lock();
+      }
       useUI.getState().setCovered(false);
-      if (hiddenAt && Date.now() - hiddenAt >= limit()) lock();
-      hiddenAt = 0;
+      clearExports(10 * 60_000);
       const n = await api.post<number>('/app/recurring/process').catch(() => 0);
       if (n) qc.invalidateQueries();
     };
@@ -172,6 +180,8 @@ function GlobalEffects() {
   }, [openEditor]);
   return null;
 }
+
+clearExports(); // leftovers from the previous session
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

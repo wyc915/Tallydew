@@ -2,9 +2,21 @@ import type { Currency } from '@ledger/shared';
 import { Sql } from './db.js';
 import { CoreError } from './util.js';
 
+/**
+ * Tamper-resistant time source for security timers (PIN lockout).
+ * `boot` identifies the current boot; `ms` only moves forward within one boot.
+ * On Android this is SystemClock.elapsedRealtime + the boot count, so changing the
+ * wall clock cannot shorten a lockout. Default (Node / browser dev): the wall clock.
+ */
+export type Clock = () => Promise<{ boot: string; ms: number }>;
+export const wallClock: Clock = async () => ({ boot: 'wall', ms: Date.now() });
+
 /** Shared context: settings store + currency conversion. Passed to every service. */
 export class Ctx {
-  constructor(public readonly sql: Sql) {}
+  constructor(
+    public readonly sql: Sql,
+    public readonly clock: Clock = wallClock,
+  ) {}
 
   async getSetting(key: string): Promise<string | null> {
     return (await this.sql.get<{ value: string }>('SELECT value FROM settings WHERE key = ?', [key]))?.value ?? null;
