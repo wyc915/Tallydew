@@ -33,7 +33,13 @@ function jwtSecret() {
   return s;
 }
 
-const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? 'info' }, bodyLimit: 1024 * 1024 });
+const app = Fastify({
+  logger: { level: process.env.LOG_LEVEL ?? 'info' },
+  bodyLimit: 1024 * 1024,
+  // Behind a reverse proxy on this machine (e.g. `tailscale serve`) every request arrives from
+  // 127.0.0.1; trust X-Forwarded-For only from loopback so login throttling sees the real client.
+  trustProxy: ['127.0.0.1', '::1'],
+});
 
 await app.register(cookie);
 await app.register(jwt, { secret: jwtSecret(), cookie: { cookieName: AUTH_COOKIE, signed: false } });

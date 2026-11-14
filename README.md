@@ -131,8 +131,55 @@ npm start            # API 同時提供前端靜態檔，預設 http://127.0.0.1
 | `DATA_DIR` | SQLite 與金鑰存放目錄 | `apps/server/data` |
 | `JWT_SECRET` | JWT 簽章金鑰（未設定會自動產生並存於 `DATA_DIR`） | 自動 |
 | `COOKIE_SECURE` | 透過 HTTPS 提供服務時設為 `1` | 關閉 |
+| `ALLOW_REGISTER` | 設為 `0` 關閉註冊（建好自己的帳號後使用） | 開放 |
 
 備份：直接複製 `DATA_DIR/ledger.db` 即可。
+
+### 📱 在 iPhone 上使用（Tailscale）
+
+資料存在電腦上的伺服器，iPhone 透過 [Tailscale](https://tailscale.com/) 的私有網址連線，不需要對外開放任何連接埠。
+
+```
+iPhone（Safari／主畫面）──HTTPS──► tailscale serve :10443 ──► 127.0.0.1:3311 拾分 Server ──► SQLite（F:\TallydewData）
+```
+
+| 項目 | 設定 |
+|---|---|
+| 對 iPhone 的網址 | `https://<電腦名稱>.<tailnet>.ts.net:10443`（僅限自己的 tailnet） |
+| 伺服器 | 只監聽 `127.0.0.1:3311` |
+| 已被其他服務使用 | tailnet `443`、`8443`；本機 `8080`、`8787` — 請勿重複 |
+
+**1. 啟動伺服器**（在專案根目錄；會先備份資料庫、必要時建置前端）
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\start-tailscale.ps1
+```
+
+可用參數：`-DataDir`（資料位置，預設 `F:\TallydewData`）、`-Port`（預設 `3311`）、`-AllowRegister 0`（關閉註冊）、`-Build`（強制重新建置前端）。每次啟動會把資料庫備份到 `<DataDir>ackups`，保留最近 14 份。
+
+**2. 開啟 Tailscale HTTPS 轉發**（只需執行一次，設定會保留）
+
+```powershell
+tailscale serve --bg --https=10443 http://127.0.0.1:3311
+```
+
+用 `tailscale serve status` 確認，用 `tailscale serve --https=10443 off` 關閉。
+
+**3. iPhone**
+
+1. 開啟 Tailscale App 並連線
+2. 用 Safari 開啟 `https://<電腦名稱>.<tailnet>.ts.net:10443`，註冊帳號
+3. 分享 → **加入主畫面**，之後從主畫面圖示開啟即為全螢幕
+4. 建好帳號後，以 `-AllowRegister 0` 重新啟動伺服器關閉註冊
+
+**4. 開機自動啟動**（Windows 工作排程器，登入時執行）
+
+```powershell
+$a = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "<專案路徑>\scripts\start-tailscale.ps1" -AllowRegister 0'
+Register-ScheduledTask -TaskName 'Tallydew' -Action $a -Trigger (New-ScheduledTaskTrigger -AtLogOn) -Settings (New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0)
+```
+
+> 電腦需開機、Tailscale 需連線，iPhone 才能記帳。登入狀態保留 30 天；從主畫面開啟的 App 與 Safari 各自需要登入一次。
 
 > **注意**：帳戶餘額只計算「到現在為止」的紀錄，未來日期的紀錄（例如後續分期）會在到期時才計入。
 

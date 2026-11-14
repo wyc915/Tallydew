@@ -119,6 +119,8 @@ export async function authRoutes(app: FastifyInstance, opts: { setUnlock: (r: Fa
   const pinAttempts = new Map<number, { n: number; until: number }>();
 
   app.post('/api/auth/register', async (req, reply) => {
+    // ALLOW_REGISTER=0 closes sign-up once your own account exists (e.g. on a shared tailnet)
+    if (process.env.ALLOW_REGISTER === '0') return reply.code(403).send({ message: '此伺服器未開放註冊' });
     const body = parse(registerSchema, req.body);
     const exists = db.select().from(schema.users).where(eq(schema.users.email, body.email)).get();
     if (exists) return reply.code(409).send({ message: '此 Email 已被註冊' });
