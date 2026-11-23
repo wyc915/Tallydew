@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Release signing: read from android/keystore.properties (never committed; see keystore.properties.example).
+// Without that file the release build is signed with this PC's debug key, so it can be installed over
+// a debug build and keep its data (fine for personal sideloading; Google Play needs a real key).
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) keystorePropsFile.withInputStream { keystoreProps.load(it) }
+
 android {
     namespace "com.wyc915.tallydew"
     compileSdk rootProject.ext.compileSdkVersion
@@ -16,8 +23,20 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            if (keystorePropsFile.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            signingConfig keystorePropsFile.exists() ? signingConfigs.release : signingConfigs.debug
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
