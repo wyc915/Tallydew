@@ -62,13 +62,13 @@ function AppGate() {
 
   if (isLoading || (data && !lockChecked))
     return (
-      <div className="grid min-h-dvh place-items-center">
+      <div className="grid min-h-full place-items-center">
         <img src="/icon.svg" alt="" className="size-14 animate-pulse" />
       </div>
     );
   if (isError || !data)
     return (
-      <div className="grid min-h-dvh place-items-center px-8 text-center">
+      <div className="grid min-h-full place-items-center px-8 text-center">
         <div>
           <p className="text-lg font-bold">無法開啟資料庫</p>
           <p className="mt-2 text-sm text-muted">{(error as Error)?.message}</p>

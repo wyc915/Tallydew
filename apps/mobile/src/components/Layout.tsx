@@ -1,9 +1,11 @@
+import { useRef } from 'react';
 import { NavLink, useLocation, useOutlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   CalendarDays, ChartPie, Goal, House, Layers, LayoutGrid, ListOrdered, Menu, Plus, Repeat, Settings, Target, Wallet, Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/format';
+import { isNative } from '@/lib/native';
 import { useMe } from '@/lib/queries';
 import { useUI } from '@/stores/ui';
 import { TransactionEditor } from './TransactionEditor';
@@ -38,11 +40,15 @@ export function Layout() {
   const outlet = useOutlet();
   const openEditor = useUI((s) => s.openEditor);
   const { data: me } = useMe();
+  // The document never scrolls (html/body are locked) and <main> is the scroll container, which starts
+  // *below* a solid band the height of the status bar. Nothing ever slides under the status bar, so
+  // iPhone Safari has nothing to blur there. On Android the band is 0 high (the WebView ends below it).
+  const scroller = useRef<HTMLElement>(null);
 
   return (
-    <div className="min-h-dvh lg:flex">
+    <div className="flex h-full overflow-hidden">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-border bg-surface/60 px-4 py-6 backdrop-blur lg:flex">
+      <aside className="hidden h-full w-64 shrink-0 flex-col border-r border-border bg-surface/60 px-4 py-6 backdrop-blur lg:flex">
         <div className="mb-6 flex items-center gap-2.5 px-2">
           <img src="/icon.svg" alt="" className="size-9" />
           <span className="text-lg font-extrabold tracking-tight">拾分</span>
@@ -85,23 +91,28 @@ export function Layout() {
       </aside>
 
       {/* Main */}
-      <main className="relative min-w-0 flex-1">
-        <AnimatePresence mode="wait" initial={false}>
+      <div className="flex h-full min-w-0 flex-1 flex-col">
+      {/* solid band under the status bar */}
+      <div aria-hidden className="h-[var(--safe-top)] shrink-0 bg-bg lg:hidden" />
+      <main ref={scroller} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <AnimatePresence mode="wait" initial={false} onExitComplete={() => scroller.current?.scrollTo(0, 0)}>
           <motion.div
             key={loc.pathname}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto w-full max-w-3xl px-4 pb-32 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-6 lg:pb-12 lg:pt-10"
+            className="mx-auto w-full max-w-3xl px-4 pb-32 pt-5 sm:px-6 lg:pb-12 lg:pt-10"
           >
             {outlet}
           </motion.div>
         </AnimatePresence>
       </main>
+      </div>
 
-      {/* Mobile tab bar */}
-      <nav className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 lg:hidden">
+      {/* Mobile tab bar. In the Android app the WebView already ends above the system gesture area,
+          so the bar sits right on it (no extra gap) and covers less content; browsers keep a small gap. */}
+      <nav className={cn('fixed inset-x-3 z-40 lg:hidden', isNative ? 'bottom-[var(--safe-bottom)]' : 'bottom-[max(0.75rem,var(--safe-bottom))]')}>
         <div className="mx-auto flex h-16 max-w-md items-center justify-around rounded-[26px] border border-border bg-surface/85 px-2 shadow-[0_12px_40px_-12px_rgb(0_0_0/0.25)] backdrop-blur-xl">
           {MOBILE.map((n, i) =>
             n ? (

@@ -54,7 +54,7 @@ export function OnboardingPage() {
   ];
 
   return (
-    <div className="relative grid min-h-dvh place-items-center overflow-hidden px-5 py-10">
+    <div className="relative grid min-h-full place-items-center overflow-hidden px-5 py-10">
       <div className="pointer-events-none absolute -left-32 -top-32 size-[420px] rounded-full bg-emerald-300/40 blur-3xl dark:bg-emerald-500/15" />
       <div className="pointer-events-none absolute -bottom-40 -right-24 size-[460px] rounded-full bg-teal-300/40 blur-3xl dark:bg-teal-500/15" />
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="relative w-full max-w-sm">
