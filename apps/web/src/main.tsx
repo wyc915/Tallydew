@@ -40,7 +40,7 @@ function RequireAuth() {
   useAutoLock(data ?? undefined);
   if (isLoading)
     return (
-      <div className="grid min-h-dvh place-items-center">
+      <div className="grid min-h-full place-items-center">
         <img src="/icon.svg" alt="" className="size-12 animate-pulse" />
       </div>
     );

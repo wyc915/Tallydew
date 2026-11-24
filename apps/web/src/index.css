@@ -67,6 +67,27 @@
     -webkit-tap-highlight-color: transparent;
     font-feature-settings: 'tnum' 1, 'cv11' 1;
   }
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* The document is locked: it never scrolls or rubber-bands (pages scroll inside <main>), so iPhone
+     Safari never sees content sliding under the status bar and doesn't blur it. */
+  html,
+  body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+  /* full-screen pages outside the tab layout (sign-in, onboarding) scroll here if taller than the screen */
+  #root {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
   body {
     @apply font-sans antialiased;
     overscroll-behavior-y: none;

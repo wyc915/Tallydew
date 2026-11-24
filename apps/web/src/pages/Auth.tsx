@@ -35,7 +35,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
 
   return (
-    <div className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-10">
+    <div className="relative grid min-h-full place-items-center overflow-hidden px-4 py-10">
       {/* ambient blobs */}
       <motion.div
         className="pointer-events-none absolute -left-32 -top-32 size-[420px] rounded-full bg-emerald-300/40 blur-3xl dark:bg-emerald-500/15"
